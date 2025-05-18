@@ -48,6 +48,9 @@
       padding: 10px;
       font-size: 1rem;
     }
+    .map-name-section {
+      margin-bottom: 10px;
+    }
     input[type=range] {
       width: 50vw;
       max-width: 90vw;
@@ -74,12 +77,6 @@
 
     <label>Tamanho da grade (% largura):</label>
     <input id="tamanhoGrid" type="number" min="10" max="100" value="25" />
-
-    <label for="mapNumber">Nome do Mapa (somente números):</label>
-    <div class="d-flex align-items-center gap-2">
-      <input id="mapNumber" type="number" min="1" value="100" class="form-control" style="max-width: 100px;" />
-      <button class="btn btn-primary btn-lg" onclick="incrementMapNumber()">+1</button>
-    </div>
   </div>
 
   <canvas id="mapCanvas"></canvas>
@@ -87,6 +84,14 @@
   <div id="palette"></div>
 
   <div id="controls">
+    <div class="map-name-section">
+      <label for="mapNumber">Nome do Mapa (somente números):</label>
+      <div class="d-flex align-items-center gap-2">
+        <input id="mapNumber" type="number" min="1" value="100" class="form-control" style="max-width: 100px;" />
+        <button class="btn btn-primary btn-lg" onclick="incrementMapNumber()">+1</button>
+      </div>
+    </div>
+
     <div id="buttonGroup">
       <button onclick="clearMap()">Limpar</button>
       <button onclick="exportPNG()">Salvar Mapa</button>
