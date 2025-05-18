@@ -18,8 +18,13 @@
       max-width: 100%;
     }
     #palette button {
-      width: 32px; height: 32px; border: 2px solid white; margin: 2px; cursor: pointer;
-    }
+  width: 60px;
+  height: 60px;
+  border: 3px solid white;
+  margin: 6px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
     #controls {
       display: flex;
       flex-direction: column;
@@ -66,7 +71,16 @@
         width: 90vw !important;
       }
     }
-  </style>
+    .selected-color {
+    outline: 3px solid yellow;
+    box-shadow: 0 0 10px yellow;
+  }
+.selected-color {
+  outline: 4px solid #ff0;
+  transform: scale(1.2);
+  box-shadow: 0 0 12px #ff0;
+}
+</style>
 </head>
 <body>
   <h1>Editor de Mapa (10xN)</h1>
@@ -79,9 +93,11 @@
     <input id="tamanhoGrid" type="number" min="10" max="100" value="25" />
   </div>
 
+  <div style="display: flex; align-items: flex-start; gap: 10px;">
   <canvas id="mapCanvas"></canvas>
+</div>
 
-  <div id="palette"></div>
+  <div style="margin-top: 20px;" id="palette"></div>
 
   <div id="controls">
     <div class="map-name-section">
@@ -118,11 +134,17 @@
     const paletteDiv = document.getElementById('palette');
 
     paletteColors.forEach((color, index) => {
-      const btn = document.createElement('button');
-      btn.style.backgroundColor = color;
-      btn.onclick = () => currentColor = index;
-      paletteDiv.appendChild(btn);
-    });
+  const btn = document.createElement('button');
+  btn.style.backgroundColor = color;
+  btn.setAttribute('data-index', index);
+  btn.onclick = () => {
+    currentColor = index;
+    document.querySelectorAll('#palette button').forEach(b => b.classList.remove('selected-color'));
+    btn.classList.add('selected-color');
+  };
+  if (index === currentColor) btn.classList.add('selected-color');
+  paletteDiv.appendChild(btn);
+});
 
     alturaSlider.addEventListener('input', () => {
       const novaAltura = parseInt(alturaSlider.value);
@@ -144,6 +166,7 @@
       canvas.width = gridWidth * cellSize;
       canvas.height = gridHeight * cellSize;
       drawGrid();
+    
     });
 
     tamanhoGrid.addEventListener('input', () => {
@@ -158,14 +181,23 @@
     }
 
     function drawGrid() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (let y = 0; y < gridHeight; y++) {
         for (let x = 0; x < gridWidth; x++) {
           ctx.fillStyle = paletteColors[map[x][y]];
           ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
         }
       }
+      // Marcação das primeiras 15 posições (de baixo para cima)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.lineWidth = 1;
+      for (let y = gridHeight - 15; y < gridHeight; y++) {
+        ctx.beginPath();
+        ctx.moveTo(0, y * cellSize);
+        ctx.lineTo(canvas.width, y * cellSize);
+        ctx.stroke();
+      }
     }
-
     function getCanvasPos(evt) {
       const rect = canvas.getBoundingClientRect();
       const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
@@ -283,6 +315,9 @@
     }
 
     document.documentElement.style.setProperty('--canvas-width', tamanhoGrid.value + 'vw');
+
+    
+
     const lastMapNumber = localStorage.getItem('mapNumber');
     if (lastMapNumber) mapNumberInput.value = lastMapNumber;
     initMap();
