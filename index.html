@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Editor de Mapa - Jogo de Cubos</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     html, body {
       margin: 0; padding: 0; height: 100%; background: #111; color: white;
@@ -20,76 +21,72 @@
       width: 32px; height: 32px; border: 2px solid white; margin: 2px; cursor: pointer;
     }
     #controls {
-      margin-top: 10px; text-align: center;
-      display: flex; flex-direction: column; align-items: center;
-      width: 100%;
-    }
-    #topControls, #bottomControls {
-      width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
     }
-    #alturaControls {
-      width: 90%;
+    #topControls {
       display: flex;
       flex-direction: column;
       align-items: center;
-    }
-    #alturaSlider {
-      width: 50vw;
-    }
-    #mapInfo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    #mapNumber {
-      width: 80px;
+      width: 100%;
+      gap: 8px;
+      padding: 10px;
     }
     #buttonGroup {
       display: flex;
-      flex-wrap: wrap;
       justify-content: space-around;
       width: 100%;
+      flex-wrap: wrap;
     }
     #buttonGroup button, #buttonGroup input[type=file] {
       flex: 1;
-      min-width: 100px;
       margin: 4px;
       padding: 10px;
       font-size: 1rem;
     }
-    input[type=file], input[type=range], input[type=number] {
-      margin: 10px;
+    input[type=range] {
+      width: 50vw;
+      max-width: 90vw;
+    }
+    input[type=number] {
+      width: 80px;
+    }
+    @media (max-width: 600px) {
+      canvas {
+        width: 90vw !important;
+      }
+      input[type=range] {
+        width: 90vw !important;
+      }
     }
   </style>
 </head>
 <body>
+  <h1>Editor de Mapa (10xN)</h1>
+
   <div id="topControls">
-    <div id="alturaControls">
-      <label>Altura da Grid: <span id="alturaLabel">10</span></label>
-      <input id="alturaSlider" type="range" min="5" max="50" value="10" />
+    <label>Altura: <span id="alturaLabel">10</span></label>
+    <input id="alturaSlider" type="range" min="5" max="50" value="10" />
+
+    <label>Tamanho da grade (% largura):</label>
+    <input id="tamanhoGrid" type="number" min="10" max="100" value="25" />
+
+    <label for="mapNumber">Nome do Mapa (somente números):</label>
+    <div class="d-flex align-items-center gap-2">
+      <input id="mapNumber" type="number" min="1" value="100" class="form-control" style="max-width: 100px;" />
+      <button class="btn btn-primary btn-lg" onclick="incrementMapNumber()">+1</button>
     </div>
   </div>
 
-  <h1>Editor de Mapa (10xN)</h1>
   <canvas id="mapCanvas"></canvas>
 
   <div id="palette"></div>
 
   <div id="controls">
-    <div id="mapInfo">
-      <label for="mapNumber">Nome do Mapa (somente números):</label>
-      <input id="mapNumber" type="number" min="1" value="100" />
-      <button onclick="incrementMapNumber()">+1</button>
-    </div>
-
-    <label>Tamanho da grade (% largura):</label>
-    <input id="tamanhoGrid" type="number" min="10" max="100" value="25" />
-
     <div id="buttonGroup">
       <button onclick="clearMap()">Limpar</button>
       <button onclick="exportPNG()">Salvar Mapa</button>
@@ -149,14 +146,6 @@
       document.documentElement.style.setProperty('--canvas-width', percent + 'vw');
     });
 
-    function incrementMapNumber() {
-      let val = parseInt(mapNumberInput.value);
-      if (isNaN(val)) val = 0;
-      val++;
-      mapNumberInput.value = val;
-      localStorage.setItem('mapNumber', val);
-    }
-
     function initMap() {
       map = Array.from({ length: gridWidth }, () => Array(gridHeight).fill(0));
       canvas.width = gridWidth * cellSize;
@@ -166,21 +155,10 @@
     function drawGrid() {
       for (let y = 0; y < gridHeight; y++) {
         for (let x = 0; x < gridWidth; x++) {
-          const isBottom10 = y >= gridHeight - 10;
-          ctx.fillStyle = isBottom10 ? shadeColor(paletteColors[map[x][y]], -20) : paletteColors[map[x][y]];
+          ctx.fillStyle = paletteColors[map[x][y]];
           ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
         }
       }
-    }
-
-    function shadeColor(color, percent) {
-      let f = parseInt(color.slice(1),16),
-          t=percent<0?0:255,
-          p=percent<0?percent*-1:percent,
-          R=f>>16,
-          G=f>>8&0x00FF,
-          B=f&0x0000FF;
-      return "#"+(0x1000000+ (Math.round((t-R)*p)+R)*0x10000 + (Math.round((t-G)*p)+G)*0x100 + (Math.round((t-B)*p)+B)).toString(16).slice(1);
     }
 
     function getCanvasPos(evt) {
@@ -241,6 +219,7 @@
         alert("Por favor, insira um número válido para o nome do mapa.");
         return;
       }
+
       localStorage.setItem('mapNumber', mapNumber);
       const fileName = `${mapNumber}.png`;
 
@@ -298,11 +277,19 @@
       reader.readAsDataURL(file);
     }
 
+    document.documentElement.style.setProperty('--canvas-width', tamanhoGrid.value + 'vw');
     const lastMapNumber = localStorage.getItem('mapNumber');
     if (lastMapNumber) mapNumberInput.value = lastMapNumber;
-    document.documentElement.style.setProperty('--canvas-width', tamanhoGrid.value + 'vw');
     initMap();
     drawGrid();
+
+    function incrementMapNumber() {
+      let val = parseInt(mapNumberInput.value);
+      if (isNaN(val)) val = 0;
+      val++;
+      mapNumberInput.value = val;
+      localStorage.setItem('mapNumber', val);
+    }
   </script>
 </body>
 </html>
