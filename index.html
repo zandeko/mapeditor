@@ -178,7 +178,19 @@
     const tamanhoLabel = document.getElementById('tamanhoLabel');
     const mapNumberInput = document.getElementById('mapNumber');
 
-    const paletteColors = ['#3f3fd4', '#00ffff', '#ff00e3', '#ff0000', '#eeff00'];
+    const paletteColors = [
+  '#3f3fd4', // Azul
+  '#00ffff', // Cyano
+  '#00C800', // Verde
+  '#eeff00', // Amarelo
+  '#ff9b39', // Laranja
+  '#ff0000', // Vermelho
+  '#ff00e3', // Rosa
+  '#800080', // Roxo
+  '#800020', // Vinho
+  '#82551e', // Marrom
+  '#4b4b4b'  // Cinza
+];
     const paletteDiv = document.getElementById('palette');
 
     paletteColors.forEach((color, index) => {
@@ -344,7 +356,7 @@
           const imageData = tempCtx.getImageData(0, 0, gridWidth, gridHeight).data;
           for (let y = 0; y < gridHeight; y++) {
             for (let x = 0; x < gridWidth; x++) {
-              const index = (x + (gridHeight - 1 - y) * gridWidth) * 4;
+              const index = (x + y * gridWidth) * 4;
               const r = imageData[index];
               const g = imageData[index + 1];
               const b = imageData[index + 2];
