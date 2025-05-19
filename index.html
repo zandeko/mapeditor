@@ -9,9 +9,13 @@
     html, body {
   overflow-y: auto;
   font-size: clamp(28px, 5vw, 40px);
-      margin: 0; padding: 0; height: 100%; background: #111; color: white;
-      font-family: sans-serif; display: flex; flex-direction: column; align-items: center;
-    }
+  margin: 0;
+  padding: 0;
+  height: auto;
+  background: #111;
+  color: white;
+  font-family: sans-serif;
+}
     canvas {
   border: 1px solid #888;
   image-rendering: pixelated;
@@ -66,18 +70,18 @@
       width: 80px;
     }
     @media (max-width: 600px) {
-      canvas {
-        width: 90vw !important;
-      }
+  canvas {
+    width: var(--canvas-width, 25vw) !important;
+  }
+  input[type=range] {
+  width: 50vw;
+  max-width: 90vw;
+}
       input[type=range] {
         width: 90vw !important;
       }
     }
     .selected-color {
-    outline: 3px solid yellow;
-    box-shadow: 0 0 10px yellow;
-  }
-.selected-color {
   outline: 4px solid #ff0;
   transform: scale(1.2);
   box-shadow: 0 0 12px #ff0;
@@ -86,6 +90,12 @@
   html, body {
     font-size: clamp(16px, 1.2vw, 20px);
   }
+  
+  #palette button {
+  width: 50px;
+  height: 50px;
+}
+
   #buttonGroup button,
   #buttonGroup input[type=file],
   input#mapNumber {
@@ -96,19 +106,9 @@
     height: 50px;
   }
 }
-  #buttonGroup button,
-  #buttonGroup input[type=file],
-  input#mapNumber {
-    font-size: 1rem !important;
-  }
-  #palette button {
-    width: 50px;
-    height: 50px;
-  }
-
 </style>
 </head>
-<body style="max-width: 90vw; width: 100%;">
+<body style="max-width: 90vw; width: 100%; display: flex; flex-direction: column; align-items: center;">
 
   
   <div id="topControls">
@@ -119,11 +119,12 @@
 <input id="tamanhoGrid" type="range" min="10" max="100" value="80" style="accent-color: #0ff;" />
   </div>
 
-  <div style="display: flex; align-items: flex-start; gap: 10px;">
+  <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
   <canvas id="mapCanvas"></canvas>
+  <div style="margin-top: 10px; display: flex; justify-content: center; flex-wrap: wrap; width: 100%;" id="palette"></div>
 </div>
 
-  <div style="margin-top: 20px;" id="palette"></div>
+  <div style="margin-top: 10px; display: flex; justify-content: center; flex-wrap: wrap; width: 100%;" id="palette"></div>
 
   <div id="controls">
     <div class="map-name-section">
@@ -138,7 +139,9 @@
     <div id="buttonGroup">
       <button onclick="clearMap()" class="btn btn-danger">🗑️ Limpar</button>
       <button onclick="exportPNG()" class="btn btn-success">💾 Salvar Mapa</button>
-      <input type="file" accept="image/png" onchange="loadFromImage(event)" />
+      <div class="d-flex flex-column w-100">
+        <input type="file" accept="image/png" onchange="loadFromImage(event)" class="form-control" style="max-width: 100%;" />
+      </div>
     </div>
   </div>
 
@@ -257,7 +260,12 @@
     window.addEventListener('mouseup', stopDrawing);
 
     canvas.addEventListener('touchstart', (e) => { isDrawing = true; paintAt(e); });
-    window.addEventListener('touchmove', (e) => { if (isDrawing) paintAt(e); e.preventDefault(); });
+    canvas.addEventListener('touchmove', (e) => {
+  if (isDrawing) {
+    paintAt(e);
+    e.preventDefault();
+  }
+});
     window.addEventListener('touchend', stopDrawing);
 
     function clearMap() {
@@ -378,5 +386,13 @@ function decrementMapNumber() {
 }
   </script>
   
+  <button onclick="window.scrollBy({ top: -200, behavior: 'smooth' });" 
+          style="position: fixed; top: 10px; right: 10px; z-index: 9999; opacity: 0.4; font-size: 2rem; border: none; background: transparent;">
+    ⬆️
+  </button>
+  <button onclick="window.scrollBy({ top: 200, behavior: 'smooth' });" 
+          style="position: fixed; top: 60px; right: 10px; z-index: 9999; opacity: 0.4; font-size: 2rem; border: none; background: transparent;">
+    ⬇️
+  </button>
 </body>
 </html>
