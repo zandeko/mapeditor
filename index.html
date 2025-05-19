@@ -106,9 +106,13 @@
     height: 50px;
   }
 }
+@media (max-width: 600px) {
+  .grid-container { width: 95% !important; }
+  .scroll-buttons { width: 5% !important; }
+}
 </style>
 </head>
-<body style="max-width: 90vw; width: 100%; display: flex; flex-direction: column; align-items: center;">
+<body style="width: 100%; display: flex; flex-direction: column; align-items: center;">
 
   
   <div id="topControls">
@@ -119,10 +123,23 @@
 <input id="tamanhoGrid" type="range" min="10" max="100" value="80" style="accent-color: #0ff;" />
   </div>
 
-  <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-  <canvas id="mapCanvas"></canvas>
-  <div style="margin-top: 10px; display: flex; justify-content: center; flex-wrap: wrap; width: 100%;" id="palette"></div>
+  <div style="display: flex; flex-direction: row; justify-content: center; align-items: flex-start; width: 100%; gap: 10px; flex-wrap: nowrap;">
+  <div class="grid-container" style="width: 95%; display: flex; justify-content: center;">
+    <canvas id="mapCanvas"></canvas>
+  </div>
+  <div class="scroll-buttons" style="width: 5%; display: flex; flex-direction: column; align-items: center; gap: 10px; padding-top: 10px;"></div>
+
+  <button onclick="window.scrollBy({ top: -200, behavior: 'smooth' });"
+          style="position: fixed; right: 0; top: 150px; width: 5%; height: 5%; font-size: 3vw; border: none; background: transparent; opacity: 0.4; z-index: 999;">
+    ⬆️
+  </button>
+  <button onclick="window.scrollBy({ top: 200, behavior: 'smooth' });"
+          style="position: fixed; right: 0; top: 210px; width: 5%; height: 5%; font-size: 3vw; border: none; background: transparent; opacity: 0.4; z-index: 999;">
+    ⬇️
+  </button>
 </div>
+    
+<div style="margin-top: 10px; display: flex; justify-content: center; flex-wrap: wrap; width: 100%;" id="palette"></div>
 
   <div style="margin-top: 10px; display: flex; justify-content: center; flex-wrap: wrap; width: 100%;" id="palette"></div>
 
@@ -137,8 +154,8 @@
     </div>
 
     <div id="buttonGroup">
-      <button onclick="clearMap()" class="btn btn-danger">🗑️ Limpar</button>
-      <button onclick="exportPNG()" class="btn btn-success">💾 Salvar Mapa</button>
+      <button onclick="clearMap()" class="btn btn-danger btn-lg">🗑️ Limpar</button>
+      <button onclick="exportPNG()" class="btn btn-success btn-lg">💾 Salvar Mapa</button>
       <div class="d-flex flex-column w-100">
         <input type="file" accept="image/png" onchange="loadFromImage(event)" class="form-control" style="max-width: 100%;" />
       </div>
@@ -386,13 +403,6 @@ function decrementMapNumber() {
 }
   </script>
   
-  <button onclick="window.scrollBy({ top: -200, behavior: 'smooth' });" 
-          style="position: fixed; top: 10px; right: 10px; z-index: 9999; opacity: 0.4; font-size: 2rem; border: none; background: transparent;">
-    ⬆️
-  </button>
-  <button onclick="window.scrollBy({ top: 200, behavior: 'smooth' });" 
-          style="position: fixed; top: 60px; right: 10px; z-index: 9999; opacity: 0.4; font-size: 2rem; border: none; background: transparent;">
-    ⬇️
-  </button>
+  
 </body>
 </html>
