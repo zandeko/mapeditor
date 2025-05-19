@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta charset="UTF-8">
   <title>Editor de Mapa - Jogo de Cubos</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     html, body {
+  overflow-y: auto;
   font-size: clamp(28px, 5vw, 40px);
       margin: 0; padding: 0; height: 100%; background: #111; color: white;
       font-family: sans-serif; display: flex; flex-direction: column; align-items: center;
     }
     canvas {
-      border: 1px solid #888;
-      image-rendering: pixelated;
-      touch-action: none;
-      width: var(--canvas-width, 25vw);
-      height: auto;
-      max-width: 100%;
-    }
+  border: 1px solid #888;
+  image-rendering: pixelated;
+  width: var(--canvas-width, 25vw);
+  height: auto;
+  max-width: 100%;
+}
     #palette button {
   width: 70px;
   height: 70px;
@@ -81,13 +82,38 @@
   transform: scale(1.2);
   box-shadow: 0 0 12px #ff0;
 }
+@media (min-width: 1440px) {
+  html, body {
+    font-size: clamp(16px, 1.2vw, 20px);
+  }
+  #buttonGroup button,
+  #buttonGroup input[type=file],
+  input#mapNumber {
+    font-size: 1rem !important;
+  }
+  #palette button {
+    width: 50px;
+    height: 50px;
+  }
+}
+  #buttonGroup button,
+  #buttonGroup input[type=file],
+  input#mapNumber {
+    font-size: 1rem !important;
+  }
+  #palette button {
+    width: 50px;
+    height: 50px;
+  }
+
 </style>
 </head>
 <body style="max-width: 90vw; width: 100%;">
+
   
   <div id="topControls">
     <label>Altura: <span id="alturaLabel">20</span></label>
-    <input id="alturaSlider" type="range" min="20" max="50" value="20" />
+    <input id="alturaSlider" type="range" min="10" max="50" value="20" />
 
     <label>Tamanho da grade (% largura): <span id="tamanhoLabel">80</span>%</label>
 <input id="tamanhoGrid" type="range" min="10" max="100" value="80" style="accent-color: #0ff;" />
@@ -320,9 +346,15 @@
       reader.readAsDataURL(file);
     }
 
+    const isDesktop = window.innerWidth >= 1440;
+    if (isDesktop) {
+      tamanhoGrid.value = 15;
+      tamanhoLabel.textContent = 15;
+    }
     document.documentElement.style.setProperty('--canvas-width', tamanhoGrid.value + 'vw');
     tamanhoLabel.textContent = tamanhoGrid.value;
     tamanhoLabel.textContent = tamanhoGrid.value;
+
 
     const lastMapNumber = localStorage.getItem('mapNumber');
     if (lastMapNumber) mapNumberInput.value = lastMapNumber;
@@ -345,5 +377,6 @@ function decrementMapNumber() {
   localStorage.setItem('mapNumber', val);
 }
   </script>
+  
 </body>
 </html>
