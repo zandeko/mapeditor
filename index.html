@@ -6,6 +6,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     html, body {
+  font-size: clamp(28px, 5vw, 40px);
       margin: 0; padding: 0; height: 100%; background: #111; color: white;
       font-family: sans-serif; display: flex; flex-direction: column; align-items: center;
     }
@@ -18,10 +19,10 @@
       max-width: 100%;
     }
     #palette button {
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: 70px;
   border: 3px solid white;
-  margin: 6px;
+  margin: 8px;
   cursor: pointer;
   transition: transform 0.2s;
 }
@@ -51,7 +52,7 @@
       flex: 1;
       margin: 4px;
       padding: 10px;
-      font-size: 1rem;
+      font-size: 2rem;
     }
     .map-name-section {
       margin-bottom: 10px;
@@ -82,15 +83,14 @@
 }
 </style>
 </head>
-<body>
-  <h1>Editor de Mapa (10xN)</h1>
-
+<body style="max-width: 90vw; width: 100%;">
+  
   <div id="topControls">
-    <label>Altura: <span id="alturaLabel">10</span></label>
-    <input id="alturaSlider" type="range" min="5" max="50" value="10" />
+    <label>Altura: <span id="alturaLabel">20</span></label>
+    <input id="alturaSlider" type="range" min="20" max="50" value="20" />
 
-    <label>Tamanho da grade (% largura): <span id="tamanhoLabel">40</span>%</label>
-<input id="tamanhoGrid" type="range" min="10" max="100" value="40" style="accent-color: #0ff;" />
+    <label>Tamanho da grade (% largura): <span id="tamanhoLabel">80</span>%</label>
+<input id="tamanhoGrid" type="range" min="10" max="100" value="80" style="accent-color: #0ff;" />
   </div>
 
   <div style="display: flex; align-items: flex-start; gap: 10px;">
@@ -103,14 +103,15 @@
     <div class="map-name-section">
       <label for="mapNumber">Nome do Mapa (somente números):</label>
       <div class="d-flex align-items-center gap-2">
-        <input id="mapNumber" type="number" min="1" value="100" class="form-control" style="max-width: 100px;" />
+        <input id="mapNumber" type="number" min="1" value="100" class="form-control flex-fill" style="font-size: 2rem; height: auto;" disabled />
+        <button class="btn btn-danger btn-lg" onclick="decrementMapNumber()">-1</button>
         <button class="btn btn-primary btn-lg" onclick="incrementMapNumber()">+1</button>
       </div>
     </div>
 
     <div id="buttonGroup">
-      <button onclick="clearMap()">Limpar</button>
-      <button onclick="exportPNG()">Salvar Mapa</button>
+      <button onclick="clearMap()" class="btn btn-danger">🗑️ Limpar</button>
+      <button onclick="exportPNG()" class="btn btn-success">💾 Salvar Mapa</button>
       <input type="file" accept="image/png" onchange="loadFromImage(event)" />
     </div>
   </div>
@@ -119,7 +120,7 @@
     const canvas = document.getElementById('mapCanvas');
     const ctx = canvas.getContext('2d');
     const gridWidth = 10;
-    let gridHeight = 10;
+    let gridHeight = 20;
     const cellSize = 20;
     let map = [];
     let isDrawing = false;
@@ -234,11 +235,12 @@
     window.addEventListener('touchend', stopDrawing);
 
     function clearMap() {
-      for (let y = 0; y < gridHeight; y++)
-        for (let x = 0; x < gridWidth; x++)
-          map[x][y] = 0;
-      drawGrid();
-    }
+  if (!confirm("Tem certeza que deseja limpar o mapa?")) return;
+  for (let y = 0; y < gridHeight; y++)
+    for (let x = 0; x < gridWidth; x++)
+      map[x][y] = 0;
+  drawGrid();
+}
 
     function exportPNG() {
       const exportCanvas = document.createElement('canvas');
@@ -266,6 +268,8 @@
       link.download = fileName;
       link.href = exportCanvas.toDataURL();
       link.click();
+
+      incrementMapNumber();
     }
 
     function loadFromImage(event) {
@@ -318,20 +322,28 @@
 
     document.documentElement.style.setProperty('--canvas-width', tamanhoGrid.value + 'vw');
     tamanhoLabel.textContent = tamanhoGrid.value;
+    tamanhoLabel.textContent = tamanhoGrid.value;
 
-   
     const lastMapNumber = localStorage.getItem('mapNumber');
     if (lastMapNumber) mapNumberInput.value = lastMapNumber;
     initMap();
     drawGrid();
 
     function incrementMapNumber() {
-      let val = parseInt(mapNumberInput.value);
-      if (isNaN(val)) val = 0;
-      val++;
-      mapNumberInput.value = val;
-      localStorage.setItem('mapNumber', val);
-    }
+  let val = parseInt(mapNumberInput.value);
+  if (isNaN(val)) val = 0;
+  val++;
+  mapNumberInput.value = val;
+  localStorage.setItem('mapNumber', val);
+}
+
+function decrementMapNumber() {
+  let val = parseInt(mapNumberInput.value);
+  if (isNaN(val)) val = 1;
+  val = Math.max(1, val - 1);
+  mapNumberInput.value = val;
+  localStorage.setItem('mapNumber', val);
+}
   </script>
 </body>
 </html>
