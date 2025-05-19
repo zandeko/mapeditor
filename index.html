@@ -89,8 +89,8 @@
     <label>Altura: <span id="alturaLabel">10</span></label>
     <input id="alturaSlider" type="range" min="5" max="50" value="10" />
 
-    <label>Tamanho da grade (% largura):</label>
-    <input id="tamanhoGrid" type="number" min="10" max="100" value="25" />
+    <label>Tamanho da grade (% largura): <span id="tamanhoLabel">40</span>%</label>
+<input id="tamanhoGrid" type="range" min="10" max="100" value="40" style="accent-color: #0ff;" />
   </div>
 
   <div style="display: flex; align-items: flex-start; gap: 10px;">
@@ -128,6 +128,7 @@
     const alturaSlider = document.getElementById('alturaSlider');
     const alturaLabel = document.getElementById('alturaLabel');
     const tamanhoGrid = document.getElementById('tamanhoGrid');
+    const tamanhoLabel = document.getElementById('tamanhoLabel');
     const mapNumberInput = document.getElementById('mapNumber');
 
     const paletteColors = ['#3f3fd4', '#00ffff', '#ff00e3', '#ff0000', '#eeff00'];
@@ -171,6 +172,7 @@
 
     tamanhoGrid.addEventListener('input', () => {
       const percent = Math.max(10, Math.min(100, parseInt(tamanhoGrid.value)));
+      tamanhoLabel.textContent = percent;
       document.documentElement.style.setProperty('--canvas-width', percent + 'vw');
     });
 
@@ -247,7 +249,7 @@
       for (let y = 0; y < gridHeight; y++) {
         for (let x = 0; x < gridWidth; x++) {
           exportCtx.fillStyle = paletteColors[map[x][y]];
-          exportCtx.fillRect(x, gridHeight - 1 - y, 1, 1);
+          exportCtx.fillRect(x, y, 1, 1);
         }
       }
 
@@ -315,9 +317,9 @@
     }
 
     document.documentElement.style.setProperty('--canvas-width', tamanhoGrid.value + 'vw');
+    tamanhoLabel.textContent = tamanhoGrid.value;
 
-    
-
+   
     const lastMapNumber = localStorage.getItem('mapNumber');
     if (lastMapNumber) mapNumberInput.value = lastMapNumber;
     initMap();
