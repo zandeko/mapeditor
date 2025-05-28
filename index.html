@@ -24,8 +24,8 @@
   max-width: 100%;
 }
     #palette button {
-  width: 55px;
-  height: 55px;
+  width: 70px;
+  height: 70px;
   border: 3px solid white;
   margin: 8px;
   cursor: pointer;
@@ -74,13 +74,23 @@
     width: var(--canvas-width, 25vw) !important;
   }
   input[type=range] {
+    width: 90vw !important;
+  }
+  .grid-container { width: 95% !important; }
+  .scroll-buttons { width: 5% !important; }
+  #palette button {
+    width: 60px;
+    height: 60px;
+  }
+}
+  input[type=range] {
   width: 50vw;
   max-width: 90vw;
 }
       input[type=range] {
         width: 90vw !important;
       }
-    }
+    
     .selected-color {
   outline: 4px solid #ff0;
   transform: scale(1.2);
@@ -178,7 +188,7 @@
     const tamanhoLabel = document.getElementById('tamanhoLabel');
     const mapNumberInput = document.getElementById('mapNumber');
 
-    const paletteColors = [
+const paletteColors = [
   '#3f3fd4', // Azul
   '#00ffff', // Cyano
   '#00C800', // Verde
@@ -189,13 +199,55 @@
   '#800080', // Roxo
   '#800020', // Vinho
   '#82551e', // Marrom
-  '#4b4b4b'  // Cinza
+  '#4b4b4b', // Cinza
+
+  '#3f3fd4', // Azul especial
+  '#00ffff', // Cyano especial
+  '#00C800', // Verde especial
+  '#eeff00', // Amarelo especial
+  '#ff9b39', // Laranja especial
+  '#ff0000', // Vermelho especial
+  '#ff00e3', // Rosa especial
+  '#800080', // Roxo especial
+  '#800020', // Vinho especial
+  '#82551e', // Marrom especial
+  '#4b4b4b'  // Cinza especial
 ];
+
     const paletteDiv = document.getElementById('palette');
 
-    paletteColors.forEach((color, index) => {
+// Título para paleta de blocos normais
+const tituloNormais = document.createElement('div');
+tituloNormais.innerText = 'Blocos Normais';
+tituloNormais.style.marginTop = '10px';
+tituloNormais.style.fontSize = '1.2rem';
+tituloNormais.style.fontWeight = 'bold';
+tituloNormais.style.color = '#0ff';
+tituloNormais.style.width = '100%';
+tituloNormais.style.textAlign = 'center';
+paletteDiv.appendChild(tituloNormais);
+
+paletteColors.forEach((color, index) => {
+  if (index === 11) {
+    // Separador visual da nova seção
+    const separador = document.createElement('div');
+    separador.innerText = 'Blocos Especiais (com vida)';
+    separador.style.marginTop = '20px';
+    separador.style.fontSize = '1.2rem';
+    separador.style.fontWeight = 'bold';
+    separador.style.color = 'red';
+    separador.style.width = '100%';
+    separador.style.textAlign = 'center';
+    paletteDiv.appendChild(separador);
+  }
+
   const btn = document.createElement('button');
   btn.style.backgroundColor = color;
+
+  if (index >= 11) {
+    btn.style.outline = '3px solid red'; // Marcação visual dos blocos especiais
+  }
+
   btn.setAttribute('data-index', index);
   btn.onclick = () => {
     currentColor = index;
@@ -205,6 +257,8 @@
   if (index === currentColor) btn.classList.add('selected-color');
   paletteDiv.appendChild(btn);
 });
+
+
 
     alturaSlider.addEventListener('input', () => {
       const novaAltura = parseInt(alturaSlider.value);
@@ -245,8 +299,28 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (let y = 0; y < gridHeight; y++) {
         for (let x = 0; x < gridWidth; x++) {
-          ctx.fillStyle = paletteColors[map[x][y]];
+          const index = map[x][y];
+          ctx.fillStyle = paletteColors[index];
           ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+
+          if (index >= 11) {
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x * cellSize + 1, y * cellSize + 1, cellSize - 2, cellSize - 2);
+
+            // Símbolo com contorno
+            ctx.font = `${cellSize * 0.5}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'black';
+            ctx.strokeText('★', x * cellSize + cellSize / 2, y * cellSize + cellSize / 2);
+            ctx.fillStyle = 'white';
+            ctx.fillText('★', x * cellSize + cellSize / 2, y * cellSize + cellSize / 2);
+          }
+
+
+
         }
       }
       // Marcação das primeiras 15 posições (de baixo para cima)
@@ -305,35 +379,49 @@
   drawGrid();
 }
 
-    function exportPNG() {
-      const exportCanvas = document.createElement('canvas');
-      exportCanvas.width = gridWidth;
-      exportCanvas.height = gridHeight;
-      const exportCtx = exportCanvas.getContext('2d');
+function exportPNG() {
+  const exportCanvas = document.createElement('canvas');
+  exportCanvas.width = gridWidth;
+  exportCanvas.height = gridHeight;
+  const exportCtx = exportCanvas.getContext('2d');
+  const imageData = exportCtx.createImageData(gridWidth, gridHeight);
 
-      for (let y = 0; y < gridHeight; y++) {
-        for (let x = 0; x < gridWidth; x++) {
-          exportCtx.fillStyle = paletteColors[map[x][y]];
-          exportCtx.fillRect(x, y, 1, 1);
-        }
-      }
-
-      const mapNumber = parseInt(mapNumberInput.value);
-      if (isNaN(mapNumber) || mapNumber < 1) {
-        alert("Por favor, insira um número válido para o nome do mapa.");
-        return;
-      }
-
-      localStorage.setItem('mapNumber', mapNumber);
-      const fileName = `${mapNumber}.png`;
-
-      const link = document.createElement('a');
-      link.download = fileName;
-      link.href = exportCanvas.toDataURL();
-      link.click();
-
-      incrementMapNumber();
+  for (let y = 0; y < gridHeight; y++) {
+    for (let x = 0; x < gridWidth; x++) {
+      const colorIndex = map[x][y];
+      const colorHex = paletteColors[colorIndex];
+      const r = parseInt(colorHex.substr(1, 2), 16);
+      const g = parseInt(colorHex.substr(3, 2), 16);
+      const b = parseInt(colorHex.substr(5, 2), 16);
+      const a = colorIndex >= 11 ? 250 : 255;
+      const i = (x + y * gridWidth) * 4;
+      imageData.data[i] = r;
+      imageData.data[i + 1] = g;
+      imageData.data[i + 2] = b;
+      imageData.data[i + 3] = a;
     }
+  }
+
+  exportCtx.putImageData(imageData, 0, 0);
+
+  const mapNumber = parseInt(mapNumberInput.value);
+  if (isNaN(mapNumber) || mapNumber < 1) {
+    alert("Por favor, insira um número válido para o nome do mapa.");
+    return;
+  }
+
+  localStorage.setItem('mapNumber', mapNumber);
+  const fileName = `${mapNumber}.png`;
+
+  const link = document.createElement('a');
+  link.download = fileName;
+  link.href = exportCanvas.toDataURL();
+  link.click();
+
+  incrementMapNumber();
+}
+
+
 
     function loadFromImage(event) {
       const file = event.target.files[0];
@@ -360,19 +448,30 @@
               const r = imageData[index];
               const g = imageData[index + 1];
               const b = imageData[index + 2];
-              let closest = 0;
-              let minDist = Infinity;
-              for (let i = 0; i < paletteColors.length; i++) {
-                const c = paletteColors[i];
-                const cr = parseInt(c.substr(1, 2), 16);
-                const cg = parseInt(c.substr(3, 2), 16);
-                const cb = parseInt(c.substr(5, 2), 16);
-                const dist = Math.abs(cr - r) + Math.abs(cg - g) + Math.abs(cb - b);
-                if (dist < minDist) {
-                  minDist = dist;
-                  closest = i;
+              const a = imageData[index + 3]; 
+                let closest = 0;
+                let minDist = Infinity;
+
+                // Só comparamos com os 11 primeiros (cores normais)
+                for (let i = 0; i < 11; i++) {
+                  const c = paletteColors[i];
+                  const cr = parseInt(c.substr(1, 2), 16);
+                  const cg = parseInt(c.substr(3, 2), 16);
+                  const cb = parseInt(c.substr(5, 2), 16);
+                  const dist = Math.abs(cr - r) + Math.abs(cg - g) + Math.abs(cb - b);
+                  if (dist < minDist) {
+                    minDist = dist;
+                    closest = i;
+                  }
                 }
-              }
+
+                // Se alpha for 250, é um bloco especial → offset para versão especial
+                if (a === 250) {
+                  closest += 11;
+                }
+
+map[x][y] = closest;
+
               map[x][y] = closest;
             }
           }
