@@ -200,6 +200,7 @@ const paletteColors = [
   '#800020', // Vinho
   '#82551e', // Marrom
   '#4b4b4b', // Cinza
+  '#ffffff', // Branco normal
 
   '#3f3fd4', // Azul especial
   '#00ffff', // Cyano especial
@@ -211,7 +212,8 @@ const paletteColors = [
   '#800080', // Roxo especial
   '#800020', // Vinho especial
   '#82551e', // Marrom especial
-  '#4b4b4b'  // Cinza especial
+  '#4b4b4b',  // Cinza especial
+  '#ffffff'  // Branco especial
 ];
 
     const paletteDiv = document.getElementById('palette');
@@ -228,10 +230,10 @@ tituloNormais.style.textAlign = 'center';
 paletteDiv.appendChild(tituloNormais);
 
 paletteColors.forEach((color, index) => {
-  if (index === 11) {
+  if (index === 12) {
     // Separador visual da nova seção
     const separador = document.createElement('div');
-    separador.innerText = 'Blocos Especiais (com vida)';
+    separador.innerText = 'Blocos Especiais (com 20 vidas)';
     separador.style.marginTop = '20px';
     separador.style.fontSize = '1.2rem';
     separador.style.fontWeight = 'bold';
@@ -244,7 +246,7 @@ paletteColors.forEach((color, index) => {
   const btn = document.createElement('button');
   btn.style.backgroundColor = color;
 
-  if (index >= 11) {
+  if (index >= 12) {
     btn.style.outline = '3px solid red'; // Marcação visual dos blocos especiais
   }
 
@@ -303,7 +305,7 @@ paletteColors.forEach((color, index) => {
           ctx.fillStyle = paletteColors[index];
           ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
 
-          if (index >= 11) {
+          if (index >= 12) {
             ctx.strokeStyle = 'white';
             ctx.lineWidth = 1;
             ctx.strokeRect(x * cellSize + 1, y * cellSize + 1, cellSize - 2, cellSize - 2);
@@ -393,7 +395,7 @@ function exportPNG() {
       const r = parseInt(colorHex.substr(1, 2), 16);
       const g = parseInt(colorHex.substr(3, 2), 16);
       const b = parseInt(colorHex.substr(5, 2), 16);
-      const a = colorIndex >= 11 ? 250 : 255;
+      const a = colorIndex >= 12 ? 250 : 255;
       const i = (x + y * gridWidth) * 4;
       imageData.data[i] = r;
       imageData.data[i + 1] = g;
@@ -453,7 +455,7 @@ function exportPNG() {
                 let minDist = Infinity;
 
                 // Só comparamos com os 11 primeiros (cores normais)
-                for (let i = 0; i < 11; i++) {
+                for (let i = 0; i < 12; i++) {
                   const c = paletteColors[i];
                   const cr = parseInt(c.substr(1, 2), 16);
                   const cg = parseInt(c.substr(3, 2), 16);
@@ -467,7 +469,7 @@ function exportPNG() {
 
                 // Se alpha for 250, é um bloco especial → offset para versão especial
                 if (a === 250) {
-                  closest += 11;
+                  closest += 12;
                 }
 
 map[x][y] = closest;
