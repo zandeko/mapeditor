@@ -6,6 +6,19 @@
   <title>Editor de Mapa - Jogo de Cubos</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
+
+#colorCounts.mostrar-contagem {
+  display: flex !important;
+  opacity: 1 !important;
+  transform: translateY(0px) !important;
+}
+
+    .mostrar-contagem {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0px) !important;
+}
+
     html, body {
   overflow-y: auto;
   font-size: clamp(28px, 5vw, 40px);
@@ -154,6 +167,9 @@
   <div style="margin-top: 10px; display: flex; justify-content: center; flex-wrap: wrap; width: 100%;" id="palette"></div>
 
   <div id="controls">
+<div id="colorCounts" style="display: none; opacity: 0; transform: translateY(20px); transition: opacity 0.4s ease, transform 0.4s ease; width: 100%; flex-wrap: wrap; gap: 20px; font-size: 1.1rem;"></div>
+
+
     <div class="map-name-section">
       <label for="mapNumber">Nome do Mapa (somente números):</label>
       <div class="d-flex align-items-center gap-2">
@@ -169,6 +185,8 @@
       <div class="d-flex flex-column w-100">
         <input type="file" accept="image/png" onchange="loadFromImage(event)" class="form-control" style="max-width: 100%;" />
       </div>
+      <br>
+      <button id="toggleContagemBtn" class="btn btn-warning btn-lg" onclick="toggleContagem()">🎨 Mostrar contagem de cores</button>
     </div>
   </div>
 
@@ -282,6 +300,7 @@ paletteColors.forEach((color, index) => {
       canvas.width = gridWidth * cellSize;
       canvas.height = gridHeight * cellSize;
       drawGrid();
+      
     
     });
 
@@ -334,6 +353,7 @@ paletteColors.forEach((color, index) => {
         ctx.lineTo(canvas.width, y * cellSize);
         ctx.stroke();
       }
+      atualizarContagemDeCores();
     }
     function getCanvasPos(evt) {
       const rect = canvas.getBoundingClientRect();
@@ -350,6 +370,7 @@ paletteColors.forEach((color, index) => {
         map[pos.x][pos.y] = currentColor;
         drawGrid();
       }
+
     }
 
     function handleGlobalMove(e) {
@@ -395,7 +416,7 @@ function exportPNG() {
       const r = parseInt(colorHex.substr(1, 2), 16);
       const g = parseInt(colorHex.substr(3, 2), 16);
       const b = parseInt(colorHex.substr(5, 2), 16);
-      const a = colorIndex >= 12 ? 250 : 255;
+      const a = colorIndex >= 12 ? 150 : 255;
       const i = (x + y * gridWidth) * 4;
       imageData.data[i] = r;
       imageData.data[i + 1] = g;
@@ -468,7 +489,7 @@ function exportPNG() {
                 }
 
                 // Se alpha for 250, é um bloco especial → offset para versão especial
-                if (a === 250) {
+                if (a === 150) {
                   closest += 12;
                 }
 
@@ -514,6 +535,115 @@ function decrementMapNumber() {
   mapNumberInput.value = val;
   localStorage.setItem('mapNumber', val);
 }
+
+function atualizarContagemDeCores() {
+  const contagem = Array(paletteColors.length).fill(0);
+
+  for (let x = 0; x < gridWidth; x++) {
+    for (let y = 0; y < gridHeight; y++) {
+      const idx = map[x][y];
+      contagem[idx]++;
+    }
+  }
+
+  const nomesBase = [
+    "Azul", "Cyano", "Verde", "Amarelo", "Laranja", "Vermelho",
+    "Rosa", "Roxo", "Vinho", "Marrom", "Cinza", "Branco"
+  ];
+
+  const container = document.getElementById('colorCounts');
+  container.innerHTML = "";
+
+  // Criação das duas colunas
+  const normalCol = document.createElement('div');
+  normalCol.style.flex = "1";
+  normalCol.style.minWidth = "240px";
+
+  const especiaisCol = document.createElement('div');
+  especiaisCol.style.flex = "1";
+  especiaisCol.style.minWidth = "240px";
+
+  // Títulos
+  const tituloN = document.createElement('h3');
+  tituloN.textContent = "Normais";
+  tituloN.style.textAlign = "center";
+  tituloN.style.color = "#0ff";
+  normalCol.appendChild(tituloN);
+
+  const tituloE = document.createElement('h3');
+  tituloE.textContent = "Especiais";
+  tituloE.style.textAlign = "center";
+  tituloE.style.color = "red";
+  especiaisCol.appendChild(tituloE);
+
+  // Gera linhas para cada cor (normal e especial)
+  for (let i = 0; i < 12; i++) {
+    const nome = nomesBase[i];
+    const nomeEspecial = nome + " especial";
+
+    [
+      [nome, i, normalCol],
+      [nomeEspecial, i + 12, especiaisCol]
+    ].forEach(([label, index, target]) => {
+      const linha = document.createElement('div');
+      linha.style.display = "flex";
+      linha.style.alignItems = "center";
+      linha.style.marginBottom = "6px";
+
+      const corBox = document.createElement('div');
+      corBox.style.width = "16px";
+      corBox.style.height = "16px";
+      corBox.style.marginRight = "8px";
+      corBox.style.backgroundColor = paletteColors[index];
+      corBox.style.border = index >= 12 ? "2px solid red" : "1px solid #333";
+
+      const nomeSpan = document.createElement('span');
+      nomeSpan.textContent = label;
+      nomeSpan.style.color = paletteColors[index];
+      nomeSpan.style.marginRight = "auto";
+      nomeSpan.style.minWidth = "120px";
+
+      const qtd = document.createElement('span');
+      qtd.textContent = `${contagem[index]} cubos`;
+      qtd.style.color = "#ccc";
+
+      linha.appendChild(corBox);
+      linha.appendChild(nomeSpan);
+      linha.appendChild(qtd);
+      target.appendChild(linha);
+    });
+  }
+
+  // Adiciona colunas no container
+  container.appendChild(normalCol);
+  container.appendChild(especiaisCol);
+}
+
+
+function toggleContagem() {
+  const div = document.getElementById('colorCounts');
+  const btn = document.getElementById('toggleContagemBtn');
+
+  const mostrando = div.classList.contains('mostrar-contagem');
+
+  if (!mostrando) {
+    atualizarContagemDeCores();
+    div.style.display = 'flex'; // ativa antes da transição
+    requestAnimationFrame(() => {
+      div.classList.add('mostrar-contagem');
+    });
+    btn.textContent = "🧹 Ocultar contagem de cores";
+  } else {
+    div.classList.remove('mostrar-contagem');
+    // aguarda transição e então oculta
+    setTimeout(() => {
+      div.style.display = 'none';
+    }, 400);
+    btn.textContent = "🎨 Mostrar contagem de cores";
+  }
+}
+
+
   </script>
   
   
