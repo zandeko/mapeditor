@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <title>Editor de Mapa - Jogo de Cubos</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
   <style>
 
 #colorCounts.mostrar-contagem {
@@ -173,7 +174,7 @@
     <div class="map-name-section">
       <label for="mapNumber">Nome do Mapa (somente números):</label>
       <div class="d-flex align-items-center gap-2">
-        <input id="mapNumber" type="number" min="1" value="100" class="form-control flex-fill" style="font-size: 2rem; height: auto;" disabled />
+        <input id="mapNumber" type="number" min="1" value="100" class="form-control flex-fill" style="font-size: 2rem; height: auto;" readonly />
         <button class="btn btn-danger btn-lg" onclick="decrementMapNumber()">-1</button>
         <button class="btn btn-primary btn-lg" onclick="incrementMapNumber()">+1</button>
       </div>
@@ -402,7 +403,6 @@ paletteColors.forEach((color, index) => {
   drawGrid();
 }
 
-
 function exportPNG() {
   const exportCanvas = document.createElement('canvas');
   exportCanvas.width = gridWidth;
@@ -436,18 +436,13 @@ function exportPNG() {
     }
 
     const fileName = `${mapNumber}.png`;
-    const link = document.createElement('a');
-    link.download = fileName;
-    link.href = URL.createObjectURL(blob);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(link.href);
+    saveAs(blob, fileName); // <-- FileSaver aqui
 
     incrementMapNumber();
-    alert("Mapa salvo com sucesso!");
   }, 'image/png');
 }
+
+
 
 
 
