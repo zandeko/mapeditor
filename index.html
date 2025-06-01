@@ -402,6 +402,7 @@ paletteColors.forEach((color, index) => {
   drawGrid();
 }
 
+
 function exportPNG() {
   const exportCanvas = document.createElement('canvas');
   exportCanvas.width = gridWidth;
@@ -427,23 +428,25 @@ function exportPNG() {
 
   exportCtx.putImageData(imageData, 0, 0);
 
-  const mapNumber = parseInt(mapNumberInput.value);
-  if (isNaN(mapNumber) || mapNumber < 1) {
-    alert("Por favor, insira um número válido para o nome do mapa.");
-    return;
-  }
+  exportCanvas.toBlob(function(blob) {
+    const mapNumber = parseInt(mapNumberInput.value);
+    if (isNaN(mapNumber) || mapNumber < 1) {
+      alert("Por favor, insira um número válido para o nome do mapa.");
+      return;
+    }
 
-  localStorage.setItem('mapNumber', mapNumber);
     const fileName = `${mapNumber}.png`;
-
     const link = document.createElement('a');
     link.download = fileName;
-    link.href = exportCanvas.toDataURL() + `?v=${Date.now()}`;
+    link.href = URL.createObjectURL(blob);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
 
-  incrementMapNumber();
+    incrementMapNumber();
+    
+  }, 'image/png');
 }
 
 
