@@ -173,7 +173,7 @@
     <div class="map-name-section">
       <label for="mapNumber">Nome do Mapa (somente números):</label>
       <div class="d-flex align-items-center gap-2">
-        <input id="mapNumber" type="number" min="1" value="100" class="form-control flex-fill" style="font-size: 2rem; height: auto;" readonly />
+        <input id="mapNumber" type="number" min="1" value="100" class="form-control flex-fill" style="font-size: 2rem; height: auto;" disabled />
         <button class="btn btn-danger btn-lg" onclick="decrementMapNumber()">-1</button>
         <button class="btn btn-primary btn-lg" onclick="incrementMapNumber()">+1</button>
       </div>
@@ -434,12 +434,14 @@ function exportPNG() {
   }
 
   localStorage.setItem('mapNumber', mapNumber);
-  const fileName = `${mapNumber}.png`;
+    const fileName = `${mapNumber}.png`;
 
-  const link = document.createElement('a');
-  link.download = fileName;
-  link.href = exportCanvas.toDataURL();
-  link.click();
+    const link = document.createElement('a');
+    link.download = fileName;
+    link.href = exportCanvas.toDataURL() + `?v=${Date.now()}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
   incrementMapNumber();
 }
